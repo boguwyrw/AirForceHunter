@@ -7,8 +7,6 @@ namespace spacefighter
 {
     public class SpaceFighterController : MonoBehaviour
     {
-        [SerializeField] private Transform leftBoundaries;
-        [SerializeField] private Transform rightBoundaries;
         [SerializeField] private Transform spaceFighter;
 
         private SpaceFighterControls spaceFighterControls;
@@ -18,7 +16,7 @@ namespace spacefighter
         private float flyDirection = 0.0f;
         private float flySpeed = 1.0f;
         private float turnSpeed = 10.0f;
-        private float tilt = 30.0f;
+        private float tilt = 25.0f;
 
         private void Awake()
         {
@@ -28,8 +26,6 @@ namespace spacefighter
         private void OnEnable()
         {
             spaceFighterControls.Enable();
-            spaceFighterControls.SpaceFighter.Fly.performed += OnFlyPerformed;
-            spaceFighterControls.SpaceFighter.Fly.canceled += OnFlyCanceled;
         }
 
         private void OnDisable()
@@ -53,31 +49,42 @@ namespace spacefighter
 
         private void Start()
         {
-
+            spaceFighterControls.SpaceFighter.Fly.performed += OnFlyPerformed;
+            spaceFighterControls.SpaceFighter.Fly.canceled += OnFlyCanceled;
         }
 
         private void Update()
         {
             transform.Translate(Vector3.forward * flySpeed * Time.deltaTime);
-            if (flyDirection == 1 && transform.position.x < rightBoundaries.position.x)
+            if (flyDirection == 1)
             {
-                transform.Translate(transform.right * turnSpeed * Time.deltaTime);
-                spaceFighter.rotation = Quaternion.Euler(0.0f, 0.0f, -flyDirection * tilt);
+                SpaceFighterTurn(transform.right);
+                SpaceFighterRotation(-flyDirection * tilt);
             }
-            else if (flyDirection == -1 && transform.position.x > leftBoundaries.position.x)
+            else if (flyDirection == -1)
             {
-                transform.Translate(-transform.right * turnSpeed * Time.deltaTime);
-                spaceFighter.rotation = Quaternion.Euler(0.0f, 0.0f, -flyDirection * tilt);
+                SpaceFighterTurn(-transform.right);
+                SpaceFighterRotation(-flyDirection * tilt);
             }
             else
             {
-                spaceFighter.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+                SpaceFighterRotation(0.0f);
             }
 
             if (spaceFighterControls.SpaceFighter.Fire.triggered)
             {
                 Debug.Log("Strzelam");
             }
+        }
+
+        private void SpaceFighterTurn(Vector3 turnDirection)
+        {
+            transform.Translate(turnDirection * turnSpeed * Time.deltaTime);
+        }
+
+        private void SpaceFighterRotation(float fighterTilt)
+        {
+            spaceFighter.rotation = Quaternion.Euler(0.0f, 0.0f, fighterTilt);
         }
     }
 }
